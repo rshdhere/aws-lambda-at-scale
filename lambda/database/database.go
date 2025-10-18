@@ -9,7 +9,7 @@ type DynamoDBClient struct {
 	databaseStore *dynamodb.DynamoDB
 }
 
-func DynamoDBClientFunction() DynamoDBClient {
+func NewDynamoDBClient() DynamoDBClient {
 
 	dbSession := session.Must(session.NewSession())
 	db := dynamodb.New(dbSession)
