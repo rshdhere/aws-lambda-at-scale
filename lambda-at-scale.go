@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
+	"github.com/aws/aws-cdk-go/awscdk/v2/awsapigateway"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsdynamodb"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awslambda"
 	"github.com/aws/constructs-go/constructs/v10"
@@ -37,6 +37,26 @@ func NewLambdaAtScaleStack(scope constructs.Construct, id string, props *LambdaA
 	})
 
 	table.GrantReadWriteData(myLambdaFunction)
+
+	api := awsapigateway.NewRestApi(stack, jsii.String("myApiGateway"), &awsapigateway.RestApiProps{
+		DefaultCorsPreflightOptions: &awsapigateway.CorsOptions{
+			AllowHeaders: jsii.Strings("Content-Type", "Authorization"),
+			AllowMethods: jsii.Strings("GET", "POST", "OPTIONS", "DELETE", "PUT"),
+			AllowOrigins: jsii.Strings("*"),
+		},
+		DeployOptions: &awsapigateway.StageOptions{
+			// LoggingLevel: awsapigateway.MethodLoggingLevel_INFO, // Disabled to avoid CloudWatch role requirement
+		},
+	})
+
+	integration := awsapigateway.NewLambdaIntegration(myLambdaFunction, nil)
+
+	// define the routes
+	regiterResource := api.Root().AddResource(jsii.String("register"), nil)
+	regiterResource.AddMethod(jsii.String("POST"), integration, nil)
+
+	loginResource := api.Root().AddResource(jsii.String("login"), nil)
+	loginResource.AddMethod(jsii.String("POST"), integration, nil)
 
 	return stack
 }
