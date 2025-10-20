@@ -58,6 +58,9 @@ func NewLambdaAtScaleStack(scope constructs.Construct, id string, props *LambdaA
 	loginResource := api.Root().AddResource(jsii.String("login"), nil)
 	loginResource.AddMethod(jsii.String("POST"), integration, nil)
 
+	protectedResource := api.Root().AddResource(jsii.String("protected"), nil)
+	protectedResource.AddMethod(jsii.String("GET"), integration, nil)
+
 	return stack
 }
 
